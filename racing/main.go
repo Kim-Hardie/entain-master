@@ -44,9 +44,7 @@ func run() error {
 
 	racing.RegisterRacingServer(
 		grpcServer,
-		service.NewRacingService(
-			racesRepo,
-		),
+		service.NewRacingService(racesRepo), // pass RacingService directly
 	)
 
 	log.Printf("gRPC server listening on: %s\n", *grpcEndpoint)
