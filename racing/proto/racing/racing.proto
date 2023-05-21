@@ -24,7 +24,8 @@ message ListRacesResponse {
 // Filter for listing races.
 message ListRacesRequestFilter {
   repeated int64 meeting_ids = 1;
-  optional bool showOnlyVisible =2;
+  optional bool showOnlyVisible =2; //Filter for  true = Show Visible Races or false = Show All Races
+  optional bool orderAscending = 3; //Filter for ascending or descending order
 }
 
 /* Resources */

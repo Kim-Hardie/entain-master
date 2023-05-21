@@ -65,6 +65,7 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 	var (
 		clauses []string
 		args    []interface{}
+		order   string
 	)
 
 	if filter == nil {
@@ -87,11 +88,21 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 		clauses = append(clauses, "visible = ?")
 		args = append(args, true)
 	}
+	//if no filter is set Default to Ascending order by DateTime
+	if filter.OrderAscending != nil {
+		if *filter.OrderAscending {
+			order = " ORDER BY advertised_start_time ASC"
+		} else {
+			order = " ORDER BY advertised_start_time DESC"
+		}
+	} else {
+		order = " ORDER BY advertised_start_time ASC"
+	}
 
 	if len(clauses) != 0 {
 		query += " WHERE " + strings.Join(clauses, " AND ")
 	}
-
+	query += order
 	return query, args
 }
 
