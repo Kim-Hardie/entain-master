@@ -6,9 +6,9 @@ import (
 	"log"
 	"net"
 
-	"git.neds.sh/matty/entain/racing/db"
-	"git.neds.sh/matty/entain/racing/proto/racing"
-	"git.neds.sh/matty/entain/racing/service"
+	"github.com/Kim-Hardie/entain-master/racing/db"
+	"github.com/Kim-Hardie/entain-master/racing/proto/racing"
+	"github.com/Kim-Hardie/entain-master/racing/service"
 	"google.golang.org/grpc"
 )
 

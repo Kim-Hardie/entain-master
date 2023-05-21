@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"git.neds.sh/matty/entain/racing/proto/racing"
+	"github.com/Kim-Hardie/entain-master/racing/proto/racing"
 )
 
 // RacesRepo provides repository access to races.
