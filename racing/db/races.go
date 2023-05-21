@@ -106,9 +106,7 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 	return query, args
 }
 
-func (r *racesRepo) scanRaces(
-	rows *sql.Rows,
-) ([]*racing.Race, error) {
+func (r *racesRepo) scanRaces(rows *sql.Rows) ([]*racing.Race, error) {
 	var races []*racing.Race
 
 	for rows.Next() {
