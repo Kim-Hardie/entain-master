@@ -27,6 +27,11 @@ func (m *MockRacesRepo) List(filter *racing.ListRacesRequestFilter) ([]*racing.R
 	return args.Get(0).([]*racing.Race), args.Error(1)
 }
 
+func (m *MockRacesRepo) GetByID(id int64) (*racing.Race, error) {
+	args := m.Called(id)
+	return args.Get(0).(*racing.Race), args.Error(1)
+}
+
 func TestListRaces(t *testing.T) {
 	raceTime, _ := ptypes.TimestampProto(time.Now())
 	// Sample races to be used for testing
@@ -178,6 +183,50 @@ func TestListRaces_OrderAscending(t *testing.T) {
 			for i, race := range resp.Races {
 				assert.Equal(t, tt.expectedRaces[i], race, "unexpected race")
 			}
+		})
+	}
+}
+
+//Test get race by ID
+func TestGetRaceByID(t *testing.T) {
+	raceTime, _ := ptypes.TimestampProto(time.Now())
+
+	// Sample race
+	race := &racing.Race{
+		Id:                  1,
+		MeetingId:           1,
+		Name:                "Test Race",
+		Number:              1,
+		Visible:             true,
+		AdvertisedStartTime: raceTime,
+	}
+
+	// Mock the repository and create a new Racing Service
+	mockRepo := new(MockRacesRepo)
+	s := NewRacingService(mockRepo)
+
+	// Set the expected behavior for GetByID method
+	mockRepo.On("GetByID", int64(1)).Return(race, nil)
+
+	tests := []struct {
+		name        string
+		raceID      int64
+		expected    *racing.Race
+		expectedErr error
+	}{
+		{
+			name:        "Valid race ID",
+			raceID:      1,
+			expected:    race,
+			expectedErr: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp, err := s.GetRaceByID(context.Background(), &racing.GetRaceByIDRequest{RaceId: tt.raceID})
+			assert.Equal(t, tt.expectedErr, err)
+			assert.Equal(t, tt.expected, resp.GetRace())
 		})
 	}
 }
