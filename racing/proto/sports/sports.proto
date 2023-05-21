@@ -16,23 +16,28 @@ service Sports {
 
 // Request message for ListMatches method.
 message ListMatchesRequest {
-  repeated string sports = 1;              // Filter matches by sports.
-  string status = 2;                       // Filter matches by status.
+  MatchFilter filter = 1;
+}
+
+// MatchFilter specifies the filtering criteria for list matches request.
+message MatchFilter {
+  string stadium = 1;  // Filter matches by stadium.
+  string sport = 2;    // Filter matches by sport.
 }
 
 // Response message for ListMatches method.
 message ListMatchesResponse {
-  repeated Match matches = 1;              // Collection of matches.
+  repeated Match matches = 1;  // Collection of matches.
 }
 
 // Request message for GetMatchByID method.
 message GetMatchByIDRequest {
-  int64 match_id = 1;                      // ID of the match to retrieve.
+  int64 match_id = 1;  // ID of the match to retrieve.
 }
 
 // Response message for GetMatchByID method.
 message GetMatchByIDResponse {
-  Match match = 1;                         // Single match.
+  Match match = 1;  // Single match.
 }
 
 // A match resource.
