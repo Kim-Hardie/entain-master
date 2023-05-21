@@ -105,3 +105,79 @@ func TestListRaces(t *testing.T) {
 		})
 	}
 }
+
+// Test ListRaces with orderAscending field
+func TestListRaces_OrderAscending(t *testing.T) {
+	raceTime, _ := ptypes.TimestampProto(time.Now())
+	// Sample races to be used for testing
+	races := []*racing.Race{
+		{
+			Id:                  1,
+			MeetingId:           1,
+			Name:                "Test Race 1",
+			Number:              1,
+			Visible:             true,
+			AdvertisedStartTime: raceTime,
+		},
+		{
+			Id:                  2,
+			MeetingId:           2,
+			Name:                "Test Race 2",
+			Number:              2,
+			Visible:             false,
+			AdvertisedStartTime: raceTime,
+		},
+	}
+
+	// Add one day to the AdvertisedStartTime of the second race
+	raceTimeTime, _ := ptypes.Timestamp(raceTime)
+	raceTimeTime = raceTimeTime.AddDate(0, 0, 1)
+	raceTime, _ = ptypes.TimestampProto(raceTimeTime)
+	races[1].AdvertisedStartTime = raceTime
+
+	// Mock the repository and create a new Racing Service
+	mockRepo := new(MockRacesRepo)
+	s := NewRacingService(mockRepo)
+
+	// Set expected outputs for List function mock
+	mockRepo.On("List", &racing.ListRacesRequestFilter{OrderAscending: &[]bool{true}[0]}).Return([]*racing.Race{races[0], races[1]}, nil)
+	mockRepo.On("List", &racing.ListRacesRequestFilter{OrderAscending: &[]bool{false}[0]}).Return([]*racing.Race{races[1], races[0]}, nil)
+
+	tests := []struct {
+		name          string
+		filter        *racing.ListRacesRequestFilter
+		wantErr       bool
+		expectedRaces []*racing.Race
+	}{
+		// Test orderAscending == true returns races in ascending order
+		{
+			name:          "OrderAscending is true",
+			filter:        &racing.ListRacesRequestFilter{OrderAscending: &[]bool{true}[0]},
+			wantErr:       false,
+			expectedRaces: []*racing.Race{races[0], races[1]},
+		},
+		// Test orderAscending == false returns races in descending order
+		{
+			name:          "OrderAscending is false",
+			filter:        &racing.ListRacesRequestFilter{OrderAscending: &[]bool{false}[0]},
+			wantErr:       false,
+			expectedRaces: []*racing.Race{races[1], races[0]},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp, err := s.ListRaces(context.Background(), &racing.ListRacesRequest{Filter: tt.filter})
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ListRaces() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			assert.Equal(t, len(tt.expectedRaces), len(resp.Races), "unexpected number of races")
+
+			for i, race := range resp.Races {
+				assert.Equal(t, tt.expectedRaces[i], race, "unexpected race")
+			}
+		})
+	}
+}

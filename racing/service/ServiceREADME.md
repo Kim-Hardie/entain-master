@@ -18,8 +18,15 @@ To resolve this, I implemented some necessary methods required. Specifically, th
 ### Test Rundown
 Testing primarily covers the service's ability to list races under various filtering conditions.
 
+#### Visible
 - ShowOnlyVisible is true: This test scrutinizes the scenario where the ShowOnlyVisible filter is set to true. The expected outcome is the service's return of only the visible races.
 
 - ShowOnlyVisible is false: This test scrutinizes the scenario where the ShowOnlyVisible filter is set to false. The expected outcome is the service's return of all races, irrespective of their visibility status.
 
 - ShowOnlyVisible is nil: This test scrutinizes the scenario where no value is passed in for the ShowOnlyVisible filter. The expected outcome is that the service defaults to returning only the visible races.
+
+#### Order
+
+- OrderAscending is true: verifies that the service returns races in ascending order based on the advertised start time.
+
+- OrderAscending is false: verifies that the service returns races in descending order based on the advertised start time.
