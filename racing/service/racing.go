@@ -26,3 +26,14 @@ func (s *RacingService) ListRaces(ctx context.Context, in *pb.ListRacesRequest) 
 
 	return &pb.ListRacesResponse{Races: races}, nil
 }
+
+func (s *RacingService) GetRaceByID(ctx context.Context, req *pb.GetRaceByIDRequest) (*pb.GetRaceByIDResponse, error) {
+	race, err := s.racesRepo.GetByID(req.RaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.GetRaceByIDResponse{
+		Race: race,
+	}, nil
+}
