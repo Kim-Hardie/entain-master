@@ -25,3 +25,27 @@ To update the existing races in the database and add the `status` field, follow 
    Example using the SQLite command-line tool:
    ```bash
    $ sqlite3 path/to/your/database.db < update_status.sql
+
+
+# Sports Database
+This database is created to store and manage sports matches data. It provides the functionality to create a new match, get a match by its ID, and filter matches based on specific criteria.
+
+## Database Schema
+Database Schema
+The database consists of a single table named matches. The table schema is as follows:
+
+```sql
+CREATE TABLE IF NOT EXISTS matches (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name TEXT,
+stadium TEXT,
+sport TEXT,
+team1 TEXT,
+team2 TEXT,
+time TIMESTAMP
+)
+```
+### Features
+- Init(): Initializes the database by creating the matches table if it doesn't exist.
+- CreateMatch(match *Match): Inserts a new match into the database.
+- GetMatchByID(id int): Fetches a match from the database using its ID.
