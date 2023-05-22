@@ -1,0 +1,52 @@
+syntax = "proto3";
+package sports;
+
+option go_package = "/sports";
+
+import "google/protobuf/timestamp.proto";
+
+// Service definition for Sports.
+service Sports {
+  // ListMatches returns a collection of all matches.
+  rpc ListMatches(ListMatchesRequest) returns (ListMatchesResponse) {}
+
+  // GetMatchByID returns a single match by its ID.
+  rpc GetMatchByID(GetMatchByIDRequest) returns (GetMatchByIDResponse) {}
+}
+
+// Request message for ListMatches method.
+message ListMatchesRequest {
+  MatchFilter filter = 1;
+}
+
+// MatchFilter specifies the filtering criteria for list matches request.
+message MatchFilter {
+  string stadium = 1;  // Filter matches by stadium.
+  string sport = 2;    // Filter matches by sport.
+}
+
+// Response message for ListMatches method.
+message ListMatchesResponse {
+  repeated Match matches = 1;  // Collection of matches.
+}
+
+// Request message for GetMatchByID method.
+message GetMatchByIDRequest {
+  int64 match_id = 1;  // ID of the match to retrieve.
+}
+
+// Response message for GetMatchByID method.
+message GetMatchByIDResponse {
+  Match match = 1;  // Single match.
+}
+
+// A match resource.
+message Match {
+  int64 id = 1;                            // ID of the match.
+  string name = 2;                         // Name of the match.
+  string stadium = 3;                      // Stadium where the match takes place.
+  string sport = 4;                        // Sport of the match.
+  string team1 = 5;                        // Name of team 1.
+  string team2 = 6;                        // Name of team 2.
+  google.protobuf.Timestamp time = 7;      // Time of the match.
+}
