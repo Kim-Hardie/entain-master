@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"git.neds.sh/matty/entain/racing/proto/racing"
+	"github.com/Kim-Hardie/entain-master/racing/proto/racing"
 )
 
 // RacesRepo provides repository access to races.
@@ -77,6 +77,15 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 		for _, meetingID := range filter.MeetingIds {
 			args = append(args, meetingID)
 		}
+	}
+
+	//if no filter is set defaults to only show visible races
+	if filter.ShowOnlyVisible != nil {
+		clauses = append(clauses, "visible = ?")
+		args = append(args, *filter.ShowOnlyVisible)
+	} else {
+		clauses = append(clauses, "visible = ?")
+		args = append(args, true)
 	}
 
 	if len(clauses) != 0 {

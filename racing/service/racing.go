@@ -1,31 +1,28 @@
 package service
 
 import (
-	"git.neds.sh/matty/entain/racing/db"
-	"git.neds.sh/matty/entain/racing/proto/racing"
-	"golang.org/x/net/context"
+	"context"
+
+	"github.com/Kim-Hardie/entain-master/racing/db"
+	pb "github.com/Kim-Hardie/entain-master/racing/proto/racing"
 )
 
-type Racing interface {
-	// ListRaces will return a collection of races.
-	ListRaces(ctx context.Context, in *racing.ListRacesRequest) (*racing.ListRacesResponse, error)
+// RacingService implements the RacingServer interface.
+type RacingService struct {
+	pb.UnimplementedRacingServer // embed this
+	racesRepo                    db.RacesRepo
 }
 
-// racingService implements the Racing interface.
-type racingService struct {
-	racesRepo db.RacesRepo
+// NewRacingService instantiates and returns a new RacingService.
+func NewRacingService(racesRepo db.RacesRepo) *RacingService {
+	return &RacingService{racesRepo: racesRepo}
 }
 
-// NewRacingService instantiates and returns a new racingService.
-func NewRacingService(racesRepo db.RacesRepo) Racing {
-	return &racingService{racesRepo}
-}
-
-func (s *racingService) ListRaces(ctx context.Context, in *racing.ListRacesRequest) (*racing.ListRacesResponse, error) {
+func (s *RacingService) ListRaces(ctx context.Context, in *pb.ListRacesRequest) (*pb.ListRacesResponse, error) {
 	races, err := s.racesRepo.List(in.Filter)
 	if err != nil {
 		return nil, err
 	}
 
-	return &racing.ListRacesResponse{Races: races}, nil
+	return &pb.ListRacesResponse{Races: races}, nil
 }
