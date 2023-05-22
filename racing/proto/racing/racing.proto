@@ -24,6 +24,8 @@ message ListRacesResponse {
 // Filter for listing races.
 message ListRacesRequestFilter {
   repeated int64 meeting_ids = 1;
+  optional bool showOnlyVisible =2; //Filter for  true = Show Visible Races or false = Show All Races
+  optional bool orderAscending = 3; //Filter for ascending or descending order
 }
 
 /* Resources */
@@ -42,5 +44,7 @@ message Race {
   bool visible = 5;
   // AdvertisedStartTime is the time the race is advertised to run.
   google.protobuf.Timestamp advertised_start_time = 6;
+  // Status represents weather the race has happened already = CLOSED or has not = OPEN
+  string status = 7;
 }
 

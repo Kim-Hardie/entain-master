@@ -40,20 +40,22 @@ func (c *racingClient) ListRaces(ctx context.Context, in *ListRacesRequest, opts
 }
 
 // RacingServer is the server API for Racing service.
-// All implementations should embed UnimplementedRacingServer
+// All implementations must embed UnimplementedRacingServer
 // for forward compatibility
 type RacingServer interface {
 	// ListRaces will return a collection of all races.
 	ListRaces(context.Context, *ListRacesRequest) (*ListRacesResponse, error)
+	mustEmbedUnimplementedRacingServer()
 }
 
-// UnimplementedRacingServer should be embedded to have forward compatible implementations.
+// UnimplementedRacingServer must be embedded to have forward compatible implementations.
 type UnimplementedRacingServer struct {
 }
 
 func (UnimplementedRacingServer) ListRaces(context.Context, *ListRacesRequest) (*ListRacesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRaces not implemented")
 }
+func (UnimplementedRacingServer) mustEmbedUnimplementedRacingServer() {}
 
 // UnsafeRacingServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to RacingServer will
@@ -97,5 +99,5 @@ var Racing_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "racing/racing.proto",
+	Metadata: "racing.proto",
 }
