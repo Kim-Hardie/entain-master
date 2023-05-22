@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"git.neds.sh/matty/entain/racing/proto/racing"
+	"github.com/Kim-Hardie/entain-master/racing/proto/racing"
 )
 
 // RacesRepo provides repository access to races.
@@ -18,6 +18,9 @@ type RacesRepo interface {
 
 	// List will return a list of races.
 	List(filter *racing.ListRacesRequestFilter) ([]*racing.Race, error)
+
+	// GetByID will return a race by its ID.
+	GetByID(id int64) (*racing.Race, error)
 }
 
 type racesRepo struct {
@@ -65,6 +68,7 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 	var (
 		clauses []string
 		args    []interface{}
+		order   string
 	)
 
 	if filter == nil {
@@ -79,23 +83,41 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 		}
 	}
 
+	//if no filter is set defaults to only show visible races
+	if filter.ShowOnlyVisible != nil {
+		clauses = append(clauses, "visible = ?")
+		args = append(args, *filter.ShowOnlyVisible)
+	} else {
+		clauses = append(clauses, "visible = ?")
+		args = append(args, true)
+	}
+	//if no filter is set Default to Ascending order by DateTime
+	if filter.OrderAscending != nil {
+		if *filter.OrderAscending {
+			order = " ORDER BY advertised_start_time ASC"
+		} else {
+			order = " ORDER BY advertised_start_time DESC"
+		}
+	} else {
+		order = " ORDER BY advertised_start_time ASC"
+	}
+
 	if len(clauses) != 0 {
 		query += " WHERE " + strings.Join(clauses, " AND ")
 	}
-
+	query += order
 	return query, args
 }
 
-func (m *racesRepo) scanRaces(
-	rows *sql.Rows,
-) ([]*racing.Race, error) {
+func (r *racesRepo) scanRaces(rows *sql.Rows) ([]*racing.Race, error) {
 	var races []*racing.Race
 
 	for rows.Next() {
 		var race racing.Race
 		var advertisedStart time.Time
+		var status string
 
-		if err := rows.Scan(&race.Id, &race.MeetingId, &race.Name, &race.Number, &race.Visible, &advertisedStart); err != nil {
+		if err := rows.Scan(&race.Id, &race.MeetingId, &race.Name, &race.Number, &race.Visible, &advertisedStart, &status); err != nil {
 			if err == sql.ErrNoRows {
 				return nil, nil
 			}
@@ -109,9 +131,45 @@ func (m *racesRepo) scanRaces(
 		}
 
 		race.AdvertisedStartTime = ts
+		race.Status = status
 
 		races = append(races, &race)
 	}
 
 	return races, nil
+}
+func (r *racesRepo) GetByID(raceID int64) (*racing.Race, error) {
+	query := "SELECT id, meeting_id, name, number, visible, advertised_start_time, status FROM races WHERE id = ?"
+	row := r.db.QueryRow(query, raceID)
+
+	race, err := r.scanRace(row)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return race, nil
+}
+
+func (r *racesRepo) scanRace(row *sql.Row) (*racing.Race, error) {
+	var race racing.Race
+	var advertisedStart time.Time
+	var status string
+
+	err := row.Scan(&race.Id, &race.MeetingId, &race.Name, &race.Number, &race.Visible, &advertisedStart, &status)
+	if err != nil {
+		return nil, err
+	}
+
+	ts, err := ptypes.TimestampProto(advertisedStart)
+	if err != nil {
+		return nil, err
+	}
+
+	race.AdvertisedStartTime = ts
+	race.Status = status
+
+	return &race, nil
 }
